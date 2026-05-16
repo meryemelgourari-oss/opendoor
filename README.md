@@ -16,7 +16,7 @@
 
 ---
 
-[🚀 Installation rapide](#-installation-rapide) · [📖 Documentation](#-structure-du-projet) · [🧪 Tests](#-tests) · [🚢 Déploiement](#-déploiement)
+[🚀 Installation rapide](#-installation-rapide) · [📖 Documentation](#-structure-du-projet) · [🧪 Tests](#-tests)
 
 </div>
 
@@ -32,9 +32,11 @@
 - [Configuration](#-configuration)
 - [Structure du projet](#-structure-du-projet)
 - [Base de données](#-base-de-données)
+- [Architecture : Relations Polymorphes](#-architecture--relations-polymorphes)
 - [Routes principales](#-routes-principales)
+- [Optimisations Performance & UX](#-optimisations-performance--ux)
 - [Tests](#-tests)
-- [Déploiement](#-déploiement)
+- [Guide de Maintenance](#-guide-de-maintenance)
 - [Auteure](#-auteure)
 
 ---
@@ -96,7 +98,6 @@
 | **Build** | Vite | 7.x | Compilation assets CSS/JS |
 | **Tests** | PHPUnit | 12 | Tests unitaires et feature |
 | **Auth** | Laravel Breeze | — | Authentification complète |
-| **Déploiement** | Railway / VPS Nginx | — | Cloud + HTTPS Let's Encrypt |
 
 ---
 
@@ -117,82 +118,52 @@ Avant de commencer, assurez-vous d'avoir installé :
 ### 1. Cloner le projet
 
 ```bash
-git clone https://github.com/votre-username/opendoor.git
+git clone [https://github.com/votre-username/opendoor.git](https://github.com/votre-username/opendoor.git)
 cd opendoor
-```
-
-### 2. Installer les dépendances PHP
-
-```bash
+2. Installer les dépendances PHP
+Bash
 composer install
-```
-
-### 3. Installer les dépendances JavaScript
-
-```bash
+3. Installer les dépendances JavaScript
+Bash
 npm install
-```
-
-### 4. Configurer l'environnement
-
-```bash
+4. Configurer l'environnement
+Bash
 # Copier le fichier .env
 cp .env.example .env
 
 # Générer la clé d'application
 php artisan key:generate
-```
+5. Configurer la base de données
+Éditez le fichier .env et renseignez vos paramètres MySQL :
 
-### 5. Configurer la base de données
-
-Éditez le fichier `.env` et renseignez vos paramètres MySQL :
-
-```env
+Extrait de code
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=opendoor
 DB_USERNAME=root
 DB_PASSWORD=votre_mot_de_passe
-```
-
-### 6. Exécuter les migrations
-
-```bash
+6. Exécuter les migrations
+Bash
 php artisan migrate
-```
-
-### 7. Créer le lien symbolique pour les fichiers
-
-```bash
+7. Créer le lien symbolique pour les fichiers
+Bash
 php artisan storage:link
-```
-
-### 8. Compiler les assets frontend
-
-```bash
+8. Compiler les assets frontend
+Bash
 # Développement (avec watcher)
 npm run dev
 
 # Production
 npm run build
-```
-
-### 9. Lancer le serveur de développement
-
-```bash
+9. Lancer le serveur de développement
+Bash
 php artisan serve
-```
+L'application est accessible sur http://localhost:8000 🎉
 
-L'application est accessible sur **http://localhost:8000** 🎉
-
----
-
-## ⚙️ Configuration
-
-### Variables d'environnement importantes (`.env`)
-
-```env
+⚙️ Configuration
+Variables d'environnement importantes (.env)
+Extrait de code
 # Application
 APP_NAME="OpenDoor"
 APP_ENV=local
@@ -213,11 +184,8 @@ FILESYSTEM_DISK=public
 # Upload (à configurer aussi dans php.ini)
 # upload_max_filesize = 40M
 # post_max_size = 42M
-```
-
-### Créer un compte administrateur
-
-```bash
+Créer un compte administrateur
+Bash
 # Via Tinker (console interactive Laravel)
 php artisan tinker
 
@@ -229,19 +197,10 @@ php artisan tinker
     'is_admin' => true,
     'is_active' => true,
 ]);
-```
-
-### Données de démonstration (optionnel)
-
-```bash
+Données de démonstration 
 php artisan db:seed
-```
 
----
-
-## 📁 Structure du projet
-
-```
+📁 Structure du projet
 opendoor/
 ├── app/
 │   ├── Http/
@@ -289,22 +248,15 @@ opendoor/
 │   └── Feature/                           # 75 tests feature
 ├── public/                                # Point d'entrée web
 ├── .env.example                           # Template configuration
-├── phpunit.xml                            # Configuration PHPUnit
-└── DEPLOIEMENT.md                         # Guide déploiement détaillé
-```
+└── phpunit.xml                            # Configuration PHPUnit
 
----
-
-## 🗄️ Base de données
-
-### Schéma simplifié
-
-```
+🗄️ Base de données
+Schéma simplifié
 USERS (id, name, email, password, is_admin, is_active)
   │
   ├── PROPERTIES (id, title, description, price, type_transaction,
-  │              type_bien, surface, rooms, city, address, phone,
-  │              status, is_approved, views_count, latitude, longitude)
+  │               type_bien, surface, rooms, city, address, phone,
+  │               status, is_approved, views_count, latitude, longitude)
   │     │
   │     ├── RESSOURCES (id, property_id, resourceable_type, resourceable_id)
   │     │     ├── IMAGES    (id, path, caption)
@@ -312,153 +264,112 @@ USERS (id, name, email, password, is_admin, is_active)
   │     │     └── ARTICLES  (id, title, content, author_name)
   │     │
   │     ├── COMMENTAIRES (id, property_id, user_id, guest_name,
-  │     │                content, is_approved)
+  │     │                 content, is_approved)
   │     │
   │     └── MESSAGES (id, property_id, receiver_id, visitor_name,
-  │                  visitor_email, content, is_read)
+  │                   visitor_email, content, is_read)
   │
   ├── RECLAMATIONS (id, user_id, subject, message, priority, status, is_read)
   │
   └── TESTIMONIALS (id, name, content, rating, is_approved)
-```
 
-### Valeurs des énumérations
+    
+🗺️ Routes principales
+Publiques
+Méthode	URI	Description
+GET	/	Page d'accueil
+GET	/annonces	Liste des annonces (avec filtres)
+GET	/annonces/{id}	Détail d'une annonce
+GET	/annonces/autour-de-moi	Carte de proximité GPS
+GET	/annonces/analyse-du-marche	Statistiques du marché
+POST	/annonces/{id}/contact	Envoyer un message
+POST	/annonces/{id}/comments	Poster un commentaire
+Authentifié (auth middleware)
+Méthode	URI	Description
+GET	/dashboard	Tableau de bord
+GET	/dashboard/mes-annonces	Mes annonces
+POST	/user/annonces	Créer une annonce
+PUT	/user/annonces/{id}	Modifier une annonce
+DELETE	/user/annonces/{id}	Supprimer une annonce
+GET	/messages	Mes messages reçus
+POST	/reclamations	Soumettre une réclamation
+GET	/profile	Modifier le profil
+Administration (admin middleware)
+Méthode	URI	Description
+GET	/admin	Dashboard administrateur
+GET	/admin/annonces	Gestion de toutes les annonces
+PATCH	/admin/annonces/{id}/moderate	Approuver / rejeter
+GET	/admin/users	Gestion des utilisateurs
+PATCH	/admin/users/{id}/toggle	Activer / désactiver un compte
+GET	/admin/reclamations	Traiter les réclamations
+GET	/admin/stats/views	API JSON statistiques (24h/7j/30j)
 
-| Champ | Valeurs |
-|---|---|
-| `properties.type_transaction` | `vente`, `location` |
-| `properties.type_bien` | `appartement`, `maison`, `terrain`, `commercial` |
-| `properties.status` | `publiee`, `brouillon`, `archivee` |
-| `reclamations.priority` | `basse`, `normale`, `urgente` |
-| `reclamations.status` | `ouvert`, `en_cours`, `resolu` |
 
----
+🧪 Tests
+Le projet inclut 107 tests couvrant l'intégralité de l'application.
 
-## 🗺️ Routes principales
+Lancer tous les tests
 
-### Publiques
-
-| Méthode | URI | Description |
-|---|---|---|
-| `GET` | `/` | Page d'accueil |
-| `GET` | `/annonces` | Liste des annonces (avec filtres) |
-| `GET` | `/annonces/{id}` | Détail d'une annonce |
-| `GET` | `/annonces/autour-de-moi` | Carte de proximité GPS |
-| `GET` | `/annonces/analyse-du-marche` | Statistiques du marché |
-| `POST` | `/annonces/{id}/contact` | Envoyer un message |
-| `POST` | `/annonces/{id}/comments` | Poster un commentaire |
-
-### Authentifié (`auth` middleware)
-
-| Méthode | URI | Description |
-|---|---|---|
-| `GET` | `/dashboard` | Tableau de bord |
-| `GET` | `/dashboard/mes-annonces` | Mes annonces |
-| `POST` | `/user/annonces` | Créer une annonce |
-| `PUT` | `/user/annonces/{id}` | Modifier une annonce |
-| `DELETE` | `/user/annonces/{id}` | Supprimer une annonce |
-| `GET` | `/messages` | Mes messages reçus |
-| `POST` | `/reclamations` | Soumettre une réclamation |
-| `GET` | `/profile` | Modifier le profil |
-
-### Administration (`admin` middleware)
-
-| Méthode | URI | Description |
-|---|---|---|
-| `GET` | `/admin` | Dashboard administrateur |
-| `GET` | `/admin/annonces` | Gestion de toutes les annonces |
-| `PATCH` | `/admin/annonces/{id}/moderate` | Approuver / rejeter |
-| `GET` | `/admin/users` | Gestion des utilisateurs |
-| `PATCH` | `/admin/users/{id}/toggle` | Activer / désactiver un compte |
-| `GET` | `/admin/reclamations` | Traiter les réclamations |
-| `GET` | `/admin/stats/views` | API JSON statistiques (24h/7j/30j) |
-
----
-
-## 🧪 Tests
-
-Le projet inclut **107 tests** couvrant l'intégralité de l'application.
-
-### Lancer tous les tests
-
-```bash
 php artisan test
-```
 
-### Lancer avec détail
+Lancer avec détail
 
-```bash
 php artisan test --verbose
-```
 
-### Lancer une suite spécifique
+Suite de tests détaillée
 
-```bash
-# Tests unitaires uniquement
-php artisan test --testsuite=Unit
+Fichier	Tests	Couverture
+Unit/PropertyModelTest.php	7	Casts, relations, fillable du modèle Property
+Unit/UserModelTest.php	6	Casts, hidden, relations du modèle User
+Unit/OtherModelsTest.php	10	Modèles Commentaire, Message, Reclamation
+Unit/PropertyPolicyTest.php	9	Règles d'autorisation (Policy)
+Feature/PropertyTest.php	16	CRUD annonces, filtres, sécurité propriétaire
+Feature/CommentTest.php	8	Store, approve, destroy, validation
+Feature/MessageTest.php	9	Visiteur vs connecté, marquage lu
+Feature/ReclamationTest.php	7	Store, destroy, validations enum
+Feature/AdminTest.php	12	Dashboard, modération, CRUD users, API stats
+Feature/DatabaseIntegrityTest.php	13	Schéma, cascades ON DELETE, contraintes
+Feature/PublicPagesTest.php	10	Pages publiques, dashboard
+Total	107	—
+Note : Les tests utilisent une base de données SQLite en mémoire (configurée dans phpunit.xml), totalement isolée de la base de développement.
 
-# Tests feature uniquement
-php artisan test --testsuite=Feature
+🔒 Sécurité
+CSRF : Protection automatique Laravel sur tous les formulaires POST/PUT/DELETE
 
-# Un fichier spécifique
-php artisan test tests/Feature/PropertyTest.php
+Authentification : Laravel Breeze avec hachage bcrypt des mots de passe
 
-# Un test spécifique
-php artisan test --filter test_owner_can_update_their_property
-```
+Autorisation : PropertyPolicy via Gates — vérification côté serveur sur chaque action
 
-### Couverture des tests
+Middleware admin : Les routes /admin/* sont protégées par AdminMiddleware (renvoie HTTP 403 si connecté non-admin)
 
-| Fichier | Tests | Couverture |
-|---|---|---|
-| `Unit/PropertyModelTest.php` | 7 | Casts, relations, fillable du modèle Property |
-| `Unit/UserModelTest.php` | 6 | Casts, hidden, relations du modèle User |
-| `Unit/OtherModelsTest.php` | 10 | Modèles Commentaire, Message, Reclamation |
-| `Unit/PropertyPolicyTest.php` | 9 | Règles d'autorisation (Policy) |
-| `Feature/PropertyTest.php` | 16 | CRUD annonces, filtres, sécurité propriétaire |
-| `Feature/CommentTest.php` | 8 | Store, approve, destroy, validation |
-| `Feature/MessageTest.php` | 9 | Visiteur vs connecté, marquage lu |
-| `Feature/ReclamationTest.php` | 7 | Store, destroy, validations enum |
-| `Feature/AdminTest.php` | 12 | Dashboard, modération, CRUD users, API stats |
-| `Feature/DatabaseIntegrityTest.php` | 13 | Schéma, cascades ON DELETE, contraintes |
-| `Feature/PublicPagesTest.php` | 10 | Pages publiques, dashboard |
-| **Total** | **107** | — |
+Validation : Toutes les entrées utilisateur sont validées côté serveur (types, longueurs, enums)
 
-> **Note :** Les tests utilisent une base de données SQLite en mémoire (configurée dans `phpunit.xml`), totalement isolée de la base de développement.
+Upload : Types MIME vérifiés (jpeg, png, jpg, webp, mp4, mov) avec limite à 40 Mo
 
----
+# Vider le cache de l'application
+php artisan cache:clear
 
+# Vider le cache des routes et de la configuration
+php artisan route:clear
+php artisan config:clear
 
-## 🔒 Sécurité
+# Optimiser l'application
+php artisan optimize
 
-- **CSRF** : Protection automatique Laravel sur tous les formulaires POST/PUT/DELETE
-- **Authentification** : Laravel Breeze avec hachage bcrypt des mots de passe
-- **Autorisation** : `PropertyPolicy` via Gates — vérification côté serveur sur chaque action
-- **Middleware admin** : Les routes `/admin/*` sont protégées par `AdminMiddleware` (renvoie HTTP 403 si connecté non-admin)
-- **Validation** : Toutes les entrées utilisateur sont validées côté serveur (types, longueurs, enums)
-- **Upload** : Types MIME vérifiés (`jpeg`, `png`, `jpg`, `webp`, `mp4`, `mov`) avec limite à 40 Mo
+📄 Licence
+Ce projet a été développé dans le cadre d'un stage professionnel chez WebExperts (Safi, Maroc).
 
----
-
-## 📄 Licence
-
-Ce projet a été développé dans le cadre d'un stage professionnel chez **WebExperts** (Safi, Maroc).  
 © 2026 EL GOURARI Meryem — Tous droits réservés.
 
----
+👩‍💻 Auteure
+EL GOURARI Meryem
 
-## 👩‍💻 Auteure
+Stagiaire Développement Web & Digital
 
-**EL GOURARI Meryem**  
-Stagiaire Développement Web & Digital  
-WebExperts — Safi, Maroc  
-Tuteur de stage : M. NAINIA Omar  
+WebExperts — Safi, Maroc
+
+Tuteur de stage : M. NAINIA Omar
+
 Mars 2026
 
----
-
-<div align="center">
-
-Fait avec  · Laravel 13 · Tailwind CSS · Alpine.js · Leaflet.js
-
-</div>
+Fait avec  · Laravel 13 · Tailwind CSS · Alpine.js · Leaflet.js
