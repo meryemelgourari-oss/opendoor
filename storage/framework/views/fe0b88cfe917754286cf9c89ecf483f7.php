@@ -1,13 +1,22 @@
-<x-app-layout>
+<?php if (isset($component)) { $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54 = $attributes; } ?>
+<?php $component = App\View\Components\AppLayout::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('app-layout'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\AppLayout::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
     <div x-data="locationScanner()" class="bg-white/70 min-h-screen py-10 px-4 relative overflow-hidden text-slate-900">
 
-        {{-- Background FX --}}
+        
         <div class="absolute top-0 left-1/4 w-72 h-72 bg-blue-100/40 blur-[80px] rounded-full pointer-events-none"></div>
         <div class="absolute bottom-0 right-1/4 w-72 h-72 bg-indigo-50/40 blur-[80px] rounded-full pointer-events-none"></div>
 
         <div class="max-w-6xl mx-auto relative z-10">
 
-            {{-- HEADER --}}
+            
             <div class="mb-10 text-center">
                 <div class="flex items-center justify-center gap-3 mb-4">
                     <span class="h-px w-8 bg-blue-600/30"></span>
@@ -19,7 +28,7 @@
                     Pépites <span class="text-blue-600">à proximité.</span>
                 </h2>
 
-                {{-- Status badge --}}
+                
                 <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white border border-slate-200/60 shadow-sm mb-6 transition-all"
                     :class="isScanning ? 'bg-blue-50/50' : ''">
                     <span class="relative flex h-2 w-2">
@@ -33,9 +42,9 @@
 
                 <br>
 
-                {{-- Controls row --}}
+                
                 <div class="flex flex-wrap items-center justify-center gap-3 mb-2">
-                    {{-- Detect button --}}
+                    
                     <button @click="findMe()" :disabled="isScanning"
                         class="group relative inline-flex items-center gap-3 px-8 py-4 bg-slate-900 hover:bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl hover:shadow-blue-500/30 active:scale-95 disabled:opacity-50 overflow-hidden">
                         <div class="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
@@ -43,10 +52,10 @@
                         <span x-text="isScanning ? 'Détection...' : 'Détecter ma position'"></span>
                     </button>
 
-                    {{-- Filters (Shown after detection) --}}
+                    
                     <template x-if="userLat">
                         <div class="flex flex-wrap items-center justify-center gap-3">
-                            {{-- Radius selector --}}
+                            
                             <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-sm">
                                 <span class="material-symbols-outlined text-blue-600 text-sm">radar</span>
                                 <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Rayon</span>
@@ -59,7 +68,7 @@
                                 </select>
                             </div>
 
-                            {{-- Type filter --}}
+                            
                             <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-sm">
                                 <span class="material-symbols-outlined text-blue-600 text-sm">home_work</span>
                                 <select x-model="filterType" @change="filterByDistance()"
@@ -72,7 +81,7 @@
                                 </select>
                             </div>
 
-                            {{-- Transaction filter --}}
+                            
                             <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-sm">
                                 <span class="material-symbols-outlined text-blue-600 text-sm">sell</span>
                                 <select x-model="filterTransaction" @change="filterByDistance()"
@@ -86,7 +95,7 @@
                     </template>
                 </div>
 
-                {{-- Results count --}}
+                
                 <div x-show="userLat" x-transition class="mt-4">
                     <span class="text-[11px] text-slate-400">
                         <span class="font-black text-blue-600" x-text="nearbyProperties.length"></span>
@@ -96,7 +105,7 @@
                 </div>
             </div>
 
-            {{-- MAP --}}
+            
             <div class="relative bg-white p-2 rounded-[2.5rem] shadow-lg border border-slate-50 mb-10">
                 <div id="map" class="h-[420px] w-full rounded-[2.2rem] z-0 shadow-inner" wire:ignore></div>
                 <div x-show="!userLat" x-transition
@@ -106,7 +115,7 @@
                 </div>
             </div>
 
-            {{-- GRID --}}
+            
             <div>
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="font-serif text-2xl italic font-black text-slate-900">
@@ -115,24 +124,24 @@
                     </h3>
                 </div>
 
-                {{-- Grid : All (Blade) or Nearby (Alpine) --}}
+                
                 <div x-show="!userLat" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @forelse($properties as $prop)
+                    <?php $__empty_1 = true; $__currentLoopData = $properties; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $prop): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <div class="group bg-white rounded-[2rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500">
                             <div class="h-48 relative overflow-hidden bg-slate-100">
-                                <img src="{{$prop->ressources->first() ? asset('storage/' . $prop->ressources->first()->resourceable->path) : asset('images/default.jpeg') }}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                                <img src="<?php echo e($prop->ressources->first() ? asset('storage/' . $prop->ressources->first()->resourceable->path) : asset('images/default.jpeg')); ?>" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
                                 <div class="absolute top-3 right-3 font-black text-blue-600 text-[11px] bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-lg shadow-sm">
-                                    {{ number_format($prop['price'], 0, ',', ' ') }} DH
+                                    <?php echo e(number_format($prop['price'], 0, ',', ' ')); ?> DH
                                 </div>
                             </div>
                             <div class="p-5">
-                                <h3 class="text-slate-900 font-bold text-sm truncate">{{ $prop['title'] }}</h3>
-                                <p class="text-[10px] text-slate-400 mt-1 italic">{{ $prop['address'] }}</p>
+                                <h3 class="text-slate-900 font-bold text-sm truncate"><?php echo e($prop['title']); ?></h3>
+                                <p class="text-[10px] text-slate-400 mt-1 italic"><?php echo e($prop['address']); ?></p>
                             </div>
                         </div>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <p class="col-span-full text-center py-10 text-slate-400 italic">Aucun bien disponible.</p>
-                    @endforelse
+                    <?php endif; ?>
                 </div>
 
                 <div x-show="userLat" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -180,7 +189,7 @@
                 filterType: '',
                 filterTransaction: '',
                 nearbyProperties: [],
-                allProperties: @json($properties),
+                allProperties: <?php echo json_encode($properties, 15, 512) ?>,
                 propertyMarkers: [],
 
                 init() {
@@ -279,4 +288,13 @@
         .marker-pin { transition: all 0.3s ease; }
         @keyframes shimmer { 100% { transform: translateX(250%) skewX(-12deg); } }
     </style>
-</x-app-layout>
+ <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
+<?php $attributes = $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
+<?php unset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
+<?php $component = $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
+<?php unset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
+<?php endif; ?><?php /**PATH C:\Users\HP\Desktop\opendoor v-final\opendoor\resources\views/properties/nearby.blade.php ENDPATH**/ ?>

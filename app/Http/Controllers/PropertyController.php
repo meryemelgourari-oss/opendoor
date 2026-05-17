@@ -241,4 +241,65 @@ class PropertyController extends Controller
 
         return back()->with('success', 'Statut modifié.');
     }
+    /**
+     * Display properties near the authenticated user or given coordinates.
+     */
+    public function nearby(Request $request)
+    {
+        // 1. Check authorization if your Policy handles it
+        $this->authorize('viewAny', Property::class);
+
+        // 2. Get coordinates (fallback to default city coordinates if missing)
+        // Defaulting to Safi coordinates as an example: lat 32.2994, lng -9.2372
+        $latitude = $request->input('latitude', 32.2994);
+        $longitude = $request->input('longitude', -9.2372);
+        
+        // Radius in kilometers
+        $radius = $request->input('radius', 10); 
+
+        // 3. Calculate distance using the Haversine formula
+        $properties = Property::with('ressources')
+            ->where('status', 'publiee')
+            ->where('is_approved', true)
+            ->select('properties.*')
+            ->selectRaw(
+                '(6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance',
+                [$latitude, $longitude, $latitude]
+            )
+            ->having('distance', '<=', $radius)
+            ->orderBy('distance', 'asc')
+            ->paginate(12)
+            ->withQueryString();
+
+        // 4. Return your view
+        return view('properties.nearby', compact('properties'));
+    }
+    public function analytics()
+    {
+        // 1. Fetch data from database
+        $totalListings = Property::count();
+        $avgPrice = Property::avg('price') ?? 0;
+
+         $popularDistrict = Property::select('city', DB::raw('count(*) as total'))
+    ->groupBy('city')
+    ->orderByDesc('total')
+    ->first()?->city ?? 'Safi';
+
+        // 2. Wrap them into the $stats array expected by the view
+        $stats = [
+            'avg_price' => $avgPrice,
+            'total_listings' => $totalListings,
+            'popular_district' => $popularDistrict,
+        ];
+
+        // 3. Build chart data structure expected by line 85 of your view
+        // Adjust this logic to map your actual monthly or weekly trends
+        $chartData = [
+            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+            'values' => [400000, 420000, 415000, 440000, $avgPrice], 
+        ];
+
+        // 4. CRITICAL: Pass BOTH variables to the view
+        return view('properties.analytics', compact('stats', 'chartData'));
+    }
 }
