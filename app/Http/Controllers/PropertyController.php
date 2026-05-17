@@ -46,9 +46,15 @@ class PropertyController extends Controller
         }
 
         switch ($request->get('sort')) {
-            case 'price_asc':  $query->orderBy('price', 'asc'); break;
-            case 'price_desc': $query->orderBy('price', 'desc'); break;
-            default:           $query->latest(); break;
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            default:
+                $query->latest();
+                break;
         }
 
         return $query->paginate(12)->withQueryString();
@@ -192,6 +198,9 @@ class PropertyController extends Controller
             'rooms' => 'nullable|integer|min:1|max:50',
             'city' => 'required|string',
             'address' => 'required|string|max:500',
+            'latitude'  => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+
             'price' => 'required|numeric',
             'surface' => 'required|numeric',
             'description' => 'nullable|string',
@@ -235,7 +244,7 @@ class PropertyController extends Controller
     public function updateStatus(Request $request, Property $property)
     {
         $this->authorize('update', $property);
-        
+
         $request->validate(['status' => 'required|in:publiee,brouillon,archivee']);
         $property->update(['status' => $request->status]);
 
@@ -253,9 +262,9 @@ class PropertyController extends Controller
         // Defaulting to Safi coordinates as an example: lat 32.2994, lng -9.2372
         $latitude = $request->input('latitude', 32.2994);
         $longitude = $request->input('longitude', -9.2372);
-        
+
         // Radius in kilometers
-        $radius = $request->input('radius', 10); 
+        $radius = $request->input('radius', 10);
 
         // 3. Calculate distance using the Haversine formula
         $properties = Property::with('ressources')
@@ -280,10 +289,10 @@ class PropertyController extends Controller
         $totalListings = Property::count();
         $avgPrice = Property::avg('price') ?? 0;
 
-         $popularDistrict = Property::select('city', DB::raw('count(*) as total'))
-    ->groupBy('city')
-    ->orderByDesc('total')
-    ->first()?->city ?? 'Safi';
+        $popularDistrict = Property::select('city', DB::raw('count(*) as total'))
+            ->groupBy('city')
+            ->orderByDesc('total')
+            ->first()?->city ?? 'Safi';
 
         // 2. Wrap them into the $stats array expected by the view
         $stats = [
@@ -296,7 +305,7 @@ class PropertyController extends Controller
         // Adjust this logic to map your actual monthly or weekly trends
         $chartData = [
             'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-            'values' => [400000, 420000, 415000, 440000, $avgPrice], 
+            'values' => [400000, 420000, 415000, 440000, $avgPrice],
         ];
 
         // 4. CRITICAL: Pass BOTH variables to the view

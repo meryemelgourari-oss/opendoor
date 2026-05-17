@@ -90,68 +90,70 @@ class AdmineController extends Controller
     /* -------------------------------------------------------------------------- */
     /*  GESTION DES ANNONCES (PROPERTIES)                                         */
     /* -------------------------------------------------------------------------- */
-/**
- * Afficher le formulaire de création d'une annonce (Admin)
- */
-public function createProperty()
-{
-    $this->authorize('create', Property::class);
-    return view('properties.user.actions.create'); // Utilisez votre vue de création existante
-}
-
-/**
- * Enregistrer une nouvelle annonce (Admin)
- */
-public function storeProperty(Request $request)
-{
-    $this->authorize('create', Property::class);
-    $validated = $request->validate([
-        'title' => 'required|string|max:255',
-        'rooms' => 'nullable|integer|min:1|max:50',
-        'city' => 'required|string',
-        'address' => 'required|string|max:500',
-        'phone' => 'required|string|max:20',
-        'price' => 'required|numeric',
-        'surface' => 'required|numeric',
-        'type_transaction' => 'required|in:vente,location',
-        'type_bien' => 'required|in:appartement,maison,terrain,commercial',
-        'description' => 'nullable|string',
-        'resources.*' => 'nullable|file|mimes:jpeg,png,jpg,webp,mp4,mov,quicktime|max:51200',
-    ]);
-
-    // On crée la propriété en l'attachant à l'admin (Auth::id()) 
-    // et on l'approuve automatiquement
-    $property = Property::create(array_merge($validated, [
-        'user_id' => auth()->id(),
-        'is_approved' => true,
-        'approved_at' => now(),
-        'status' => 'publiee'
-    ]));
-
-    // Gestion des images / vidéos (Logique identique à l'update)
-    if ($request->hasFile('resources')) {
-        foreach ($request->file('resources') as $file) {
-            $path = $file->store('properties/' . $property->id, 'public');
-            $mime = $file->getMimeType();
-
-            if (str_contains($mime, 'video')) {
-                $videoModel = \App\Models\Video::create(['url' => $path, 'provider' => 'local']);
-                $property->ressources()->create([
-                    'resourceable_id' => $videoModel->id,
-                    'resourceable_type' => \App\Models\Video::class,
-                ]);
-            } else {
-                $imageModel = \App\Models\Image::create(['path' => $path]);
-                $property->ressources()->create([
-                    'resourceable_id' => $imageModel->id,
-                    'resourceable_type' => \App\Models\Image::class,
-                ]);
-            }
-        }
+    /**
+     * Afficher le formulaire de création d'une annonce (Admin)
+     */
+    public function createProperty()
+    {
+        $this->authorize('create', Property::class);
+        return view('properties.user.actions.create'); // Utilisez votre vue de création existante
     }
 
-    return redirect()->route('admin.dashboard')->with('success', 'Annonce créée et publiée par l\'administration.');
-}
+    /**
+     * Enregistrer une nouvelle annonce (Admin)
+     */
+    public function storeProperty(Request $request)
+    {
+        $this->authorize('create', Property::class);
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'rooms' => 'nullable|integer|min:1|max:50',
+            'city' => 'required|string',
+            'address' => 'required|string|max:500',
+            'latitude'  => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'phone' => 'required|string|max:20',
+            'price' => 'required|numeric',
+            'surface' => 'required|numeric',
+            'type_transaction' => 'required|in:vente,location',
+            'type_bien' => 'required|in:appartement,maison,terrain,commercial',
+            'description' => 'nullable|string',
+            'resources.*' => 'nullable|file|mimes:jpeg,png,jpg,webp,mp4,mov,quicktime|max:51200',
+        ]);
+
+        // On crée la propriété en l'attachant à l'admin (Auth::id()) 
+        // et on l'approuve automatiquement
+        $property = Property::create(array_merge($validated, [
+            'user_id' => auth()->id(),
+            'is_approved' => true,
+            'approved_at' => now(),
+            'status' => 'publiee'
+        ]));
+
+        // Gestion des images / vidéos (Logique identique à l'update)
+        if ($request->hasFile('resources')) {
+            foreach ($request->file('resources') as $file) {
+                $path = $file->store('properties/' . $property->id, 'public');
+                $mime = $file->getMimeType();
+
+                if (str_contains($mime, 'video')) {
+                    $videoModel = \App\Models\Video::create(['url' => $path, 'provider' => 'local']);
+                    $property->ressources()->create([
+                        'resourceable_id' => $videoModel->id,
+                        'resourceable_type' => \App\Models\Video::class,
+                    ]);
+                } else {
+                    $imageModel = \App\Models\Image::create(['path' => $path]);
+                    $property->ressources()->create([
+                        'resourceable_id' => $imageModel->id,
+                        'resourceable_type' => \App\Models\Image::class,
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->route('admin.dashboard')->with('success', 'Annonce créée et publiée par l\'administration.');
+    }
     public function editProperty(Property $property)
     {
         // Utilise la Policy pour vérifier si c'est le proprio ou l'admin
@@ -168,6 +170,9 @@ public function storeProperty(Request $request)
             'rooms' => 'nullable|integer|min:1|max:50',
             'city' => 'required|string',
             'address' => 'required|string|max:500',
+            'latitude'  => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+
             'price' => 'required|numeric',
             'surface' => 'required|numeric',
             'description' => 'nullable|string',

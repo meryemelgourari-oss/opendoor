@@ -11,8 +11,8 @@
     <main class="flex flex-1 justify-center py-12 px-4 bg-slate-50 dark:bg-slate-950 min-h-screen"
         x-data="{ 
             
-step: <?php echo e($errors->hasAny(['price', 'surface', 'city', 'address']) ? 3 : 
-                ($errors->hasAny(['images', 'images.*', 'youtube_links', 'youtube_links.*', 'articles', 'articles.*']) ? 2 : 1)); ?>,
+step: <?php echo e($errors->hasAny(['price', 'surface', 'city', 'address', 'latitude', 'longitude']) ? 3 : 
+    ($errors->hasAny(['images', 'images.*', 'youtube_links', 'youtube_links.*', 'articles', 'articles.*']) ? 2 : 1)); ?>,
             
             isSubmitting: false,
             submitStatus: '',
@@ -415,6 +415,60 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                         </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+                            
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sm">explore</span> Latitude
+                                </label>
+                                <div class="relative group">
+                                    <input name="latitude" type="number" step="any" value="<?php echo e(old('latitude')); ?>" placeholder="Ex: 33.5892"
+                                        class="form-input h-14 w-full rounded-2xl bg-slate-50 dark:bg-slate-800 border-none text-sm font-bold focus:ring-2 focus:ring-primary <?php $__errorArgs = ['latitude'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> ring-2 ring-rose-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>">
+                                </div>
+                                <?php $__errorArgs = ['latitude'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <p class="mt-1 ml-2 text-[10px] font-black text-rose-600 uppercase tracking-widest"><?php echo e($message); ?></p> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                            </div>
+
+                            
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sm">explore</span> Longitude
+                                </label>
+                                <div class="relative group">
+                                    <input name="longitude" type="number" step="any" value="<?php echo e(old('longitude')); ?>" placeholder="Ex: -7.6031"
+                                        class="form-input h-14 w-full rounded-2xl bg-slate-50 dark:bg-slate-800 border-none text-sm font-bold focus:ring-2 focus:ring-primary <?php $__errorArgs = ['longitude'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> ring-2 ring-rose-500 <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>">
+                                </div>
+                                <?php $__errorArgs = ['longitude'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> <p class="mt-1 ml-2 text-[10px] font-black text-rose-600 uppercase tracking-widest"><?php echo e($message); ?></p> <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -494,7 +548,7 @@ unset($__errorArgs, $__bag); ?>
                             <span x-text="isSubmitting && submitStatus === 'archivee' ? 'Envoi...' : 'Archiver'"></span>
 
                         </button>
-                       
+
                     </div>
 
                 </div>

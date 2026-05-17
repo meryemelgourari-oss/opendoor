@@ -3,9 +3,9 @@
         x-data="{ 
             {{-- Détection automatique de l'étape si des erreurs Laravel sont présentes --}}
 step: {{ 
-                $errors->hasAny(['price', 'surface', 'city', 'address']) ? 3 : 
-                ($errors->hasAny(['images', 'images.*', 'youtube_links', 'youtube_links.*', 'articles', 'articles.*']) ? 2 : 1) 
-            }},
+    $errors->hasAny(['price', 'surface', 'city', 'address', 'latitude', 'longitude']) ? 3 : 
+    ($errors->hasAny(['images', 'images.*', 'youtube_links', 'youtube_links.*', 'articles', 'articles.*']) ? 2 : 1) 
+}},
             
             isSubmitting: false,
             submitStatus: '',
@@ -254,6 +254,32 @@ step: {{
                             </div>
                             @error('address') <p class="mt-1 ml-2 text-[10px] font-black text-rose-600 uppercase tracking-widest">{{ $message }}</p> @enderror
                         </div>
+                        {{-- NOUVEAUX CHAMPS : LATITUDE & LONGITUDE --}}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+                            {{-- Champ Latitude --}}
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sm">explore</span> Latitude
+                                </label>
+                                <div class="relative group">
+                                    <input name="latitude" type="number" step="any" value="{{ old('latitude') }}" placeholder="Ex: 33.5892"
+                                        class="form-input h-14 w-full rounded-2xl bg-slate-50 dark:bg-slate-800 border-none text-sm font-bold focus:ring-2 focus:ring-primary @error('latitude') ring-2 ring-rose-500 @enderror">
+                                </div>
+                                @error('latitude') <p class="mt-1 ml-2 text-[10px] font-black text-rose-600 uppercase tracking-widest">{{ $message }}</p> @enderror
+                            </div>
+
+                            {{-- Champ Longitude --}}
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sm">explore</span> Longitude
+                                </label>
+                                <div class="relative group">
+                                    <input name="longitude" type="number" step="any" value="{{ old('longitude') }}" placeholder="Ex: -7.6031"
+                                        class="form-input h-14 w-full rounded-2xl bg-slate-50 dark:bg-slate-800 border-none text-sm font-bold focus:ring-2 focus:ring-primary @error('longitude') ring-2 ring-rose-500 @enderror">
+                                </div>
+                                @error('longitude') <p class="mt-1 ml-2 text-[10px] font-black text-rose-600 uppercase tracking-widest">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -333,7 +359,7 @@ step: {{
                             <span x-text="isSubmitting && submitStatus === 'archivee' ? 'Envoi...' : 'Archiver'"></span>
 
                         </button>
-                       
+
                     </div>
 
                 </div>

@@ -11,7 +11,7 @@
     @endif
 
     <main class="max-w-7xl mx-auto px-6 py-10 lg:py-16" x-data="propertyEditor()">
-        <form action="{{ route('properties.update', $property->id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.properties.update', $property->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -111,6 +111,7 @@
                             </template>
                         </div>
                     </section>
+
                     {{-- SECTION 02: INFOS --}}
                     <section class="space-y-6">
                         <h2 class="text-xl font-bold flex items-center gap-2">
@@ -132,6 +133,7 @@
                                 <label class="text-[10px] font-bold uppercase text-slate-400">Surface (m²)</label>
                                 <input name="surface" value="{{ old('surface', $property->surface) }}" class="w-full bg-slate-50 border-none rounded-xl h-14 px-6 focus:ring-2 focus:ring-primary" type="number">
                             </div>
+
                             <div class="col-span-2 md:col-span-1">
                                 <label class="text-[10px] font-bold uppercase text-slate-400">Nombre de pièces</label>
                                 <div class="relative group">
@@ -141,7 +143,8 @@
                                     <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">meeting_room</span>
                                 </div>
                             </div>
-                            <div class="col-span-2">
+
+                            <div class="col-span-2 md:col-span-1">
                                 <label class="text-[10px] font-bold uppercase text-slate-400">Ville (Maroc)</label>
                                 <select name="city" class="w-full bg-slate-50 border-none rounded-xl h-14 px-6 focus:ring-2 focus:ring-primary appearance-none">
                                     <option value="">Sélectionnez une ville</option>
@@ -158,8 +161,8 @@
                                 </select>
                             </div>
 
-                            {{-- Adresse Complète (NOUVEAU) --}}
-                            <div class="col-span-2 md:col-span-1">
+                            {{-- Adresse Complète --}}
+                            <div class="col-span-2">
                                 <label class="text-[10px] font-bold uppercase text-slate-400">Adresse complète</label>
                                 <div class="relative group">
                                     <input name="address" value="{{ old('address', $property->address) }}"
@@ -169,12 +172,35 @@
                                 </div>
                             </div>
 
+                            {{-- NOUVEAU CHAMP : LATITUDE --}}
+                            <div class="col-span-2 md:col-span-1">
+                                <label class="text-[10px] font-bold uppercase text-slate-400">Latitude</label>
+                                <div class="relative group">
+                                    <input name="latitude" value="{{ old('latitude', $property->latitude) }}"
+                                        class="w-full bg-slate-50 border-none rounded-xl h-14 pl-12 pr-6 focus:ring-2 focus:ring-primary transition-all @error('latitude') ring-2 ring-red-500 @enderror"
+                                        type="number" step="any" placeholder="Ex: 33.5892">
+                                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">explore</span>
+                                </div>
+                            </div>
+
+                            {{-- NOUVEAU CHAMP : LONGITUDE --}}
+                            <div class="col-span-2 md:col-span-1">
+                                <label class="text-[10px] font-bold uppercase text-slate-400">Longitude</label>
+                                <div class="relative group">
+                                    <input name="longitude" value="{{ old('longitude', $property->longitude) }}"
+                                        class="w-full bg-slate-50 border-none rounded-xl h-14 pl-12 pr-6 focus:ring-2 focus:ring-primary transition-all @error('longitude') ring-2 ring-red-500 @enderror"
+                                        type="number" step="any" placeholder="Ex: -7.6031">
+                                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">explore</span>
+                                </div>
+                            </div>
+
                             <div class="col-span-2">
                                 <label class="text-[10px] font-bold uppercase text-slate-400">Description</label>
                                 <textarea name="description" rows="4" class="w-full bg-slate-50 border-none rounded-xl px-6 py-4 focus:ring-2 focus:ring-primary">{{ old('description', $property->description) }}</textarea>
                             </div>
                         </div>
                     </section>
+
                     {{-- SECTION 03: ARTICLE --}}
                     <section x-data="{ hasArticle: {{ $property->ressources->where('resourceable_type', \App\Models\Article::class)->count() > 0 ? 'true' : 'false' }} }">
                         <div class="flex items-center justify-between mb-4">
