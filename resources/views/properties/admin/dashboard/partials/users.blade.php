@@ -170,6 +170,7 @@
             </div>
         </div>
 
+        <!-- CREATE MODAL -->
         <div x-show="showCreateModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md" x-transition.opacity x-cloak>
             <div @click.away="showCreateModal = false" class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
@@ -202,13 +203,17 @@
             </div>
         </div>
 
+        <!-- EDIT MODAL (CORRIGÉ) -->
         <div x-show="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md" x-transition.opacity x-cloak>
             <div @click.away="showEditModal = false" class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-2 bg-amber-500"></div>
                 <h3 class="text-3xl font-black text-slate-900 dark:text-white mb-2 italic uppercase">Modifier</h3>
                 <p class="text-slate-500 mb-8 text-sm">Mise à jour de : <span x-text="editUser.name" class="text-blue-600 font-bold"></span></p>
-                <form :action="'/admin/users/' + editUser.id" method="POST" class="space-y-5">
-                    @csrf @method('PUT')
+                
+                <!-- La route génère '/admin/utilisateurs', et JavaScript y ajoute '/{id}' pour déclencher la route UPDATE -->
+                <form :action="`{{ route('admin.users.index') }}/${editUser.id}`" method="POST" class="space-y-5">
+                    @csrf 
+                    @method('PUT')
                     <div>
                         <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-1">Nom Complet</label>
                         <input type="text" name="name" x-model="editUser.name" class="w-full h-14 px-5 rounded-2xl border-slate-100 dark:border-slate-800 dark:bg-slate-800 bg-slate-50 focus:ring-blue-600 text-slate-900 dark:text-white" required>
@@ -232,11 +237,8 @@
     function exportTableToExcel(tableID, filename = '') {
         let tableSelect = document.getElementById(tableID);
         let originalRows = tableSelect.querySelectorAll('tbody tr');
-
-        // Création d'un tableau temporaire pour construire l'Excel
         let tempTable = document.createElement('table');
 
-        // 1. Création de l'entête (Header)
         let header = tempTable.createTHead();
         let headerRow = header.insertRow(0);
         ['NUMERO', 'NOM', 'GMAIL', 'STATUT'].forEach((text, i) => {
@@ -245,43 +247,31 @@
             headerRow.appendChild(th);
         });
 
-        // 2. Construction du corps (Body)
         let tbody = tempTable.createTBody();
 
         originalRows.forEach((row, index) => {
-            // Ignorer la ligne "Aucun utilisateur trouvé"
             if (row.cells.length < 2) return;
 
             let newRow = tbody.insertRow();
-
-            // 1. Colonne N°
             newRow.insertCell(0).innerText = index + 1;
 
-            // 2. Extraction Nom et Email
             let memberCell = row.cells[0];
             let name = memberCell.querySelector('.font-bold')?.innerText.trim() || '';
             let email = memberCell.querySelector('.text-xs')?.innerText.trim() || '';
             newRow.insertCell(1).innerText = name;
             newRow.insertCell(2).innerText = email;
 
-            // 3. Extraction du Statut (Version corrigée)
-            // On cherche le texte à l'intérieur de la cellule de statut (cellule n°2)
             let statusCellText = row.cells[1].innerText.trim();
-
-            // On utilise une vérification insensible à la casse et aux espaces
             let isActif = /Actif/i.test(statusCellText);
 
             let statusFinal = isActif ? 'ACTIF' : 'SUSPENDU';
             let statusCell = newRow.insertCell(3);
             statusCell.innerText = statusFinal;
-
-            // Optionnel : Ajouter une couleur de texte dans Excel
             statusCell.style.color = isActif ? '#059669' : '#e11d48';
         });
 
-        // 3. Processus de téléchargement
         let dataType = 'application/vnd.ms-excel';
-        let tableData = '\ufeff' + tempTable.outerHTML; // BOM UTF-8
+        let tableData = '\ufeff' + tempTable.outerHTML;
 
         filename = filename ? filename + '.xls' : 'liste_utilisateurs.xls';
         let downloadLink = document.createElement("a");
@@ -289,9 +279,7 @@
         document.body.appendChild(downloadLink);
 
         if (navigator.msSaveOrOpenBlob) {
-            let blob = new Blob([tableData], {
-                type: dataType
-            });
+            let blob = new Blob([tableData], { type: dataType });
             navigator.msSaveOrOpenBlob(blob, filename);
         } else {
             downloadLink.href = 'data:' + dataType + ', ' + encodeURIComponent(tableData);
